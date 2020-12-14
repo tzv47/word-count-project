@@ -30,14 +30,15 @@ export class WordCountTable extends Component<{ words: string }, IState> {
 
     public componentWillReceiveProps(nextProps: WordCountInput) {
         this.buildWordArray(nextProps.words)
+
     }
 
     public sortWordKey() {
         const wordArray = this.state.wordArray || []
         if (this.sortWordDescending) {
-            wordArray.sort((a, b) => (a.word > b.word ? -1 : 1))
+            wordArray.sort((a, b) => (a.word > b.word ? -1 : 1) || b.occurrence - a.occurrence)
         } else {
-            wordArray.sort((a, b) => (a.word > b.word ? 1 : -1))
+            wordArray.sort((a, b) => (a.word > b.word ? 1 : -1) || b.occurrence - a.occurrence)
         }
         this.sortWordDescending = !!!this.sortWordDescending
         this.sortCountDescending = true
@@ -49,10 +50,10 @@ export class WordCountTable extends Component<{ words: string }, IState> {
     public sortWordCount() {
         const wordArray = this.state.wordArray || []
         if (this.sortCountDescending) {
-            wordArray.sort((a, b) => b.occurrence - a.occurrence)
+            wordArray.sort((a, b) => b.occurrence - a.occurrence || (a.word > b.word ? 1 : -1))
 
         } else {
-            wordArray.sort((a, b) => a.occurrence - b.occurrence)
+            wordArray.sort((a, b) => a.occurrence - b.occurrence || (a.word > b.word ? 1 : -1))
         }
         this.sortWordDescending = true
         this.sortCountDescending = !!!this.sortCountDescending
@@ -76,7 +77,7 @@ export class WordCountTable extends Component<{ words: string }, IState> {
         wordMap.forEach((value, key) => {
             wordMapArray.push({ word: key, occurrence: value })
         })
-        wordMapArray.sort((a, b) => b.occurrence - a.occurrence)
+        wordMapArray.sort((a, b) => b.occurrence - a.occurrence || (a.word > b.word ? 1 : -1))
         this.setState({
             wordArray: wordMapArray
         });
