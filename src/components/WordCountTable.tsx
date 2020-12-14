@@ -1,14 +1,29 @@
 import React, { Component } from 'react'
 
+
+interface WordCountMap {
+    word: string;
+    occurrence: number
+}
+interface IState {
+    wordArray?: Array<WordCountMap>
+}
+
 interface WordCountInput {
     words: string
 }
 
-export class WordCountTable extends Component<{ words: string }> {
+export class WordCountTable extends Component<{ words: string }, IState> {
+
 
     public wordArray: Array<{ word: string, occurrence: number }> = []
+    public sortWordDescending = false
+    public sortCountDescending = true
     constructor(props: WordCountInput) {
         super(props)
+        this.state = {
+            wordArray: [],
+        };
 
         this.buildWordArray(props.words)
     }
@@ -17,9 +32,39 @@ export class WordCountTable extends Component<{ words: string }> {
         this.buildWordArray(nextProps.words)
     }
 
+    public sortWordKey() {
+        const wordArray = this.state.wordArray || []
+        if (this.sortWordDescending) {
+            wordArray.sort((a, b) => (a.word > b.word ? -1 : 1))
+        } else {
+            wordArray.sort((a, b) => (a.word > b.word ? 1 : -1))
+        }
+        this.sortWordDescending = !!!this.sortWordDescending
+        this.sortCountDescending = true
+        this.setState({
+            wordArray: wordArray
+        });
+    }
+
+    public sortWordCount() {
+        const wordArray = this.state.wordArray || []
+        if (this.sortCountDescending) {
+            wordArray.sort((a, b) => b.occurrence - a.occurrence)
+
+        } else {
+            wordArray.sort((a, b) => a.occurrence - b.occurrence)
+        }
+        this.sortWordDescending = true
+        this.sortCountDescending = !!!this.sortCountDescending
+        this.setState({
+            wordArray: wordArray
+        });
+    }
+
+
     private buildWordArray(words: string = '') {
-        this.wordArray = []
         const wordArray = words.trim().split("")
+        const wordMapArray: Array<WordCountMap> = []
         const wordMap: Map<string, number> = new Map()
         wordArray.forEach(word => {
             if (!wordMap.has(word)) {
@@ -29,27 +74,32 @@ export class WordCountTable extends Component<{ words: string }> {
             wordMap.set(word, currentWordCount + 1)
         })
         wordMap.forEach((value, key) => {
-            this.wordArray.push({ word: key, occurrence: value })
+            wordMapArray.push({ word: key, occurrence: value })
         })
-        this.wordArray.sort((a, b) => b.occurrence - a.occurrence)
+        wordMapArray.sort((a, b) => b.occurrence - a.occurrence)
+        this.setState({
+            wordArray: wordMapArray
+        });
     }
 
 
 
+
     render() {
+
         return (
             <div >
                 <h2>Result</h2>
                 <table className="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Word</th>
-                            <th>Count</th>
+                            <th className="sortable">Word <i style={{ cursor: 'pointer' }} onClick={() => this.sortWordKey()} className="fa fa-sort"></i></th>
+                            <th className="sortable">Count <i style={{ cursor: 'pointer' }} onClick={() => this.sortWordCount()} className="fa fa-sort"></i></th>
                         </tr>
                     </thead>
                     <tbody>
 
-                        {this.wordArray.map(word => {
+                        {(this.state.wordArray || []).map(word => {
                             return (
                                 <tr key={word.word}>
                                     <td>{word.word}</td>
