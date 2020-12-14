@@ -64,7 +64,7 @@ export class WordCountTable extends Component<{ words: string }, IState> {
 
 
     private buildWordArray(words: string = '') {
-        const wordArray = words.trim().split("")
+        const wordArray = words.trim().replace(" ", "").split("")
         const wordMapArray: Array<WordCountMap> = []
         const wordMap: Map<string, number> = new Map()
         wordArray.forEach(word => {
